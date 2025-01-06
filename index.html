@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Generador de Rutas</title>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdmX3iHElqQEj2rM-smg6o1t68PmdSjLs&libraries=places,directions"></script>
+  <style>
+    #mapa {
+      height: 500px;
+      width: 100%;
+    }
+    .boton-ruta {
+      margin: 10px;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    .boton-ruta:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+  <h1>Generador de Rutas</h1>
+  <div id="mapa"></div>
+  
+  <!-- Botones para redirigir a Google Maps -->
+  <button class="boton-ruta" id="botonRuta1" onclick="redirigirRuta('DRIVING')">Ruta en coche</button>
+  <button class="boton-ruta" id="botonRuta2" onclick="redirigirRuta('BICYCLING')">Ruta en bicicleta</button>
+  <button class="boton-ruta" id="botonRuta3" onclick="redirigirRuta('WALKING')">Ruta a pie</button>
+
+  <script>
+    let ubicacionOrigen, ubicacionDestino;
+
+    // Función para generar una ubicación aleatoria dentro de un rango
+    function obtenerUbicacionAleatoria() {
+      const latitudes = [19.3000, 19.5000];  // Rango de latitudes
+      const longitudes = [-99.2000, -99.1000];  // Rango de longitudes
+
+      // Generar una latitud y longitud aleatoria dentro de esos rangos
+      const latAleatorio = Math.random() * (latitudes[1] - latitudes[0]) + latitudes[0];
+      const lonAleatorio = Math.random() * (longitudes[1] - longitudes[0]) + longitudes[0];
+
+      return { lat: latAleatorio, lon: lonAleatorio };
+    }
+
+    // Función para obtener un destino aleatorio
+    function destinoAleatorio() {
+      const destinos = [
+        { nombre: "Parque Central", lat: 19.4326, lon: -99.1332 },
+        { nombre: "Museo de Historia", lat: 19.4153, lon: -99.161 },
+        { nombre: "Plaza Mayor", lat: 19.4389, lon: -99.1256 },
+      ];
+
+      const destino = destinos[Math.floor(Math.random() * destinos.length)];
+      console.log("Destino elegido:", destino);
+      return destino;
+    }
+
+    // Función para obtener rutas desde la ubicación aleatoria a un destino aleatorio
+    function obtenerRutas(latOrigen, lonOrigen, latDestino, lonDestino) {
+      const directionsService = new google.maps.DirectionsService();
+      const map = new google.maps.Map(document.getElementById("mapa"), {
+        center: { lat: latOrigen, lng: lonOrigen },
+        zoom: 14,
+      });
+
+      // Crear tres instancias de DirectionsRenderer para mostrar tres rutas simultáneamente
+      const directionsRenderer1 = new google.maps.DirectionsRenderer();
+      const directionsRenderer2 = new google.maps.DirectionsRenderer();
+      const directionsRenderer3 = new google.maps.DirectionsRenderer();
+
+      directionsRenderer1.setMap(map);
+      directionsRenderer2.setMap(map);
+      directionsRenderer3.setMap(map);
+
+      // Rutas posibles
+      const rutas = [
+        { mode: "DRIVING" },
+        { mode: "BICYCLING" },
+        { mode: "WALKING" },
+      ];
+
+      // Crear las tres rutas con las diferentes configuraciones
+      rutas.forEach((ruta, index) => {
+        const request = {
+          origin: { lat: latOrigen, lng: lonOrigen },
+          destination: { lat: latDestino, lng: lonDestino },
+          travelMode: google.maps.TravelMode[ruta.mode],
+        };
+
+        directionsService.route(request, function (response, status) {
+          if (status === "OK") {
+            // Asignar la respuesta de la ruta a cada DirectionsRenderer
+            if (index === 0) {
+              directionsRenderer1.setDirections(response);
+            } else if (index === 1) {
+              directionsRenderer2.setDirections(response);
+            } else if (index === 2) {
+              directionsRenderer3.setDirections(response);
+            }
+          } else {
+            console.error("Error al obtener la ruta:", status);
+          }
+        });
+      });
+    }
+
+    // Función para redirigir a Google Maps con la ruta seleccionada
+    function redirigirRuta(modo) {
+      const origen = `${ubicacionOrigen.lat},${ubicacionOrigen.lon}`;
+      const destino = `${ubicacionDestino.lat},${ubicacionDestino.lon}`;
+      const url = `https://www.google.com/maps/dir/?api=1&origin=${origen}&destination=${destino}&travelmode=${modo.toLowerCase()}`;
+      window.open(url, '_blank');
+    }
+
+    // Llamada a la función obtenerUbicacionAleatoria para la ubicación de inicio
+    // Llamada a la función destinoAleatorio para el destino
+    function generarRutas() {
+      ubicacionOrigen = obtenerUbicacionAleatoria();  // Ubicación aleatoria A
+      ubicacionDestino = destinoAleatorio();  // Ubicación aleatoria B
+
+      console.log("Ubicación origen:", ubicacionOrigen);
+      console.log("Ubicación destino:", ubicacionDestino);
+
+      // Llamamos a la función para generar rutas con las ubicaciones aleatorias
+      obtenerRutas(ubicacionOrigen.lat, ubicacionOrigen.lon, ubicacionDestino.lat, ubicacionDestino.lon);
+    }
+
+    // Llamada a la función generarRutas al cargar la página
+    window.onload = generarRutas;
+  </script>
+
+</body>
+</html>
