@@ -6,6 +6,12 @@
   <title>Generador de Rutas</title>
   <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCdmX3iHElqQEj2rM-smg6o1t68PmdSjLs&libraries=places,directions"></script>
   <style>
+  *{
+    padding: 0%;
+    margin: 0%;
+    font-family:Verdana, Geneva, Tahoma, sans-serif;
+  }
+
     #mapa {
       height: 500px;
       width: 100%;
@@ -25,13 +31,13 @@
   </style>
 </head>
 <body>
-  <h1>Generador de Rutas</h1>
+  <h1 style="background-color: rgb(102, 177, 73); color: black;">Generador de Rutas</h1>
   <div id="mapa"></div>
   
   <!-- Botones para redirigir a Google Maps -->
-  <button class="boton-ruta" id="botonRuta1" onclick="redirigirRuta('DRIVING')">Ruta en coche</button>
-  <button class="boton-ruta" id="botonRuta2" onclick="redirigirRuta('BICYCLING')">Ruta en bicicleta</button>
-  <button class="boton-ruta" id="botonRuta3" onclick="redirigirRuta('WALKING')">Ruta a pie</button>
+  <button class="boton-ruta" id="botonRuta1" onclick="redirigirRuta('DRIVING')" style="background-color: red; width: 100%; padding: 2%;">Ruta en coche</button>
+  <button class="boton-ruta" id="botonRuta2" onclick="redirigirRuta('BICYCLING')" style="background-color: blue;  width: 100%; padding: 2%;">Ruta en bicicleta</button>
+  <button class="boton-ruta" id="botonRuta3" onclick="redirigirRuta('WALKING')" style="background-color: green;  width: 100%; padding: 2%;">Ruta a pie</button>
 
   <script>
     let ubicacionOrigen, ubicacionDestino;
@@ -86,9 +92,9 @@
 
       // Rutas posibles
       const rutas = [
-        { mode: "DRIVING", renderer: directionsRenderer1 },
-        { mode: "BICYCLING", renderer: directionsRenderer2 },
-        { mode: "WALKING", renderer: directionsRenderer3 },
+        { mode: "DRIVING", renderer: directionsRenderer1, boton: "botonRuta1" },
+        { mode: "BICYCLING", renderer: directionsRenderer2, boton: "botonRuta2" },
+        { mode: "WALKING", renderer: directionsRenderer3, boton: "botonRuta3" },
       ];
 
       // Crear las tres rutas con las diferentes configuraciones
@@ -103,6 +109,10 @@
           if (status === "OK") {
             // Asignar la respuesta de la ruta a cada DirectionsRenderer
             ruta.renderer.setDirections(response);
+
+            // Obtener distancia de la ruta
+            const distancia = response.routes[0].legs[0].distance.text;
+            document.getElementById(ruta.boton).textContent += ` - ${distancia}`;
           } else {
             console.error("Error al obtener la ruta:", status);
           }
