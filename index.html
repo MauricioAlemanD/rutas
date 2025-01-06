@@ -70,9 +70,15 @@
       });
 
       // Crear tres instancias de DirectionsRenderer para mostrar tres rutas simultáneamente
-      const directionsRenderer1 = new google.maps.DirectionsRenderer();
-      const directionsRenderer2 = new google.maps.DirectionsRenderer();
-      const directionsRenderer3 = new google.maps.DirectionsRenderer();
+      const directionsRenderer1 = new google.maps.DirectionsRenderer({
+        polylineOptions: { strokeColor: "#FF0000" }, // Rojo
+      });
+      const directionsRenderer2 = new google.maps.DirectionsRenderer({
+        polylineOptions: { strokeColor: "#0000FF" }, // Azul
+      });
+      const directionsRenderer3 = new google.maps.DirectionsRenderer({
+        polylineOptions: { strokeColor: "#00FF00" }, // Verde
+      });
 
       directionsRenderer1.setMap(map);
       directionsRenderer2.setMap(map);
@@ -80,13 +86,13 @@
 
       // Rutas posibles
       const rutas = [
-        { mode: "DRIVING" },
-        { mode: "BICYCLING" },
-        { mode: "WALKING" },
+        { mode: "DRIVING", renderer: directionsRenderer1 },
+        { mode: "BICYCLING", renderer: directionsRenderer2 },
+        { mode: "WALKING", renderer: directionsRenderer3 },
       ];
 
       // Crear las tres rutas con las diferentes configuraciones
-      rutas.forEach((ruta, index) => {
+      rutas.forEach((ruta) => {
         const request = {
           origin: { lat: latOrigen, lng: lonOrigen },
           destination: { lat: latDestino, lng: lonDestino },
@@ -96,13 +102,7 @@
         directionsService.route(request, function (response, status) {
           if (status === "OK") {
             // Asignar la respuesta de la ruta a cada DirectionsRenderer
-            if (index === 0) {
-              directionsRenderer1.setDirections(response);
-            } else if (index === 1) {
-              directionsRenderer2.setDirections(response);
-            } else if (index === 2) {
-              directionsRenderer3.setDirections(response);
-            }
+            ruta.renderer.setDirections(response);
           } else {
             console.error("Error al obtener la ruta:", status);
           }
